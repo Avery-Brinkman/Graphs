@@ -30658,6 +30658,14 @@ var p5_1 = __importDefault(require("p5"));
 var Edge_1 = __importDefault(require("./Edge"));
 
 var GraphNode_1 = __importDefault(require("./GraphNode"));
+/**
+ * Generates a unique Id for nodes.
+ *
+ * @param {number} currentGuid The starting number to return. Default 0.
+ *
+ * @return {Generator<number>} The current guid, incremented by one. get value with next().value
+ */
+
 
 function generateUid() {
   var currentGuid,
@@ -30690,6 +30698,13 @@ function generateUid() {
 }
 
 var Graph = /*#__PURE__*/function () {
+  /**
+   * Maps node's uid to the actual node.
+   */
+
+  /**
+   * Maps node's uid to a list of edges that originate at that node.
+   */
   function Graph(p5) {
     _classCallCheck(this, Graph);
 
@@ -30779,12 +30794,27 @@ var Graph = /*#__PURE__*/function () {
 
       this.createNode(this.p5.mouseX, this.p5.mouseY, 0);
     }
+    /**
+     * Creates a node and adds it to the graph.
+     *
+     * @param {number} x The x position to place the node at.
+     * @param {number} y The y position to place the node at.
+     * @param {number} value The value of the new node.
+     */
+
   }, {
     key: "createNode",
     value: function createNode(x, y, value) {
       var uid = this.getUid.next().value;
       this.nodes.set(uid, new GraphNode_1.default(this.p5, new p5_1.default.Vector(x, y), value, uid));
     }
+    /**
+     * Creates an edge and adds it to the graph.
+     *
+     * @param {number} from The uid for the node the edge starts at.
+     * @param {number} to The uid for the node the edge points to.
+     */
+
   }, {
     key: "createEdge",
     value: function createEdge(from, to) {
