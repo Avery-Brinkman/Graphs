@@ -45,7 +45,10 @@ export default class GraphNode {
     const p5 = this.p5;
 
     if (p5.dist(p5.mouseX, p5.mouseY, this.pos.x, this.pos.y) < this.size / 2) {
+      this.selected = true;
       return this;
+    } else {
+      this.selected = false;
     }
   }
 }

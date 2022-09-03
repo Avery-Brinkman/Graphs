@@ -2,11 +2,13 @@ import P5 from "p5";
 import "./styles.scss";
 
 import Graph from "./Graph";
-import Edge from "./Edge";
+import GraphNode from "./GraphNode";
 
 // Creating the sketch itself
 const sketch = (p5: P5) => {
   let graph: Graph;
+
+  let prevNode: GraphNode;
 
   // The sketch setup method
   p5.setup = () => {
@@ -30,11 +32,37 @@ const sketch = (p5: P5) => {
   };
 
   p5.mouseClicked = () => {
-    graph.clickHandler();
+    // graph.clickHandler();
+
+    if (p5.keyIsDown(p5.SHIFT)) {
+      graph.createNode(p5.mouseX, p5.mouseY, 0);
+    } else if (p5.keyIsDown(p5.CONTROL)) {
+      if (prevNode) prevNode.pos.set(p5.mouseX, p5.mouseY);
+    } else {
+      let selectedNode: GraphNode;
+
+      graph.nodes.forEach((node) => {
+        selectedNode = node.clickHandler() ?? selectedNode;
+      });
+
+      if (selectedNode && prevNode && selectedNode != prevNode) {
+        graph.createEdge(prevNode.uid, selectedNode.uid);
+      }
+      prevNode = selectedNode;
+    }
   };
 
   p5.keyPressed = () => {
-    if (graph.selectNode) return true;
+    if (prevNode) {
+      if (p5.keyIsDown(p5.DELETE)) {
+        graph.edges.delete(prevNode.uid);
+        graph.nodes.delete(prevNode.uid);
+      } else if (p5.keyIsDown(69)) {
+        graph.edges.delete(prevNode.uid);
+      } else if (p5.keyCode.valueOf() >= 48 && p5.keyCode.valueOf() <= 57) {
+        prevNode.val = p5.keyCode.valueOf() - 48;
+      }
+    }
   };
 };
 

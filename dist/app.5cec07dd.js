@@ -30614,7 +30614,10 @@ var GraphNode = /*#__PURE__*/function () {
       var p5 = this.p5;
 
       if (p5.dist(p5.mouseX, p5.mouseY, this.pos.x, this.pos.y) < this.size / 2) {
+        this.selected = true;
         return this;
+      } else {
+        this.selected = false;
       }
     }
   }]);
@@ -30819,7 +30822,8 @@ var Graph_1 = __importDefault(require("./Graph")); // Creating the sketch itself
 
 
 var sketch = function sketch(p5) {
-  var graph; // The sketch setup method
+  var graph;
+  var prevNode; // The sketch setup method
 
   p5.setup = function () {
     graph = new Graph_1.default(p5); // Creating and positioning the canvas
@@ -30839,11 +30843,38 @@ var sketch = function sketch(p5) {
   };
 
   p5.mouseClicked = function () {
-    graph.clickHandler();
+    // graph.clickHandler();
+    if (p5.keyIsDown(p5.SHIFT)) {
+      graph.createNode(p5.mouseX, p5.mouseY, 0);
+    } else if (p5.keyIsDown(p5.CONTROL)) {
+      if (prevNode) prevNode.pos.set(p5.mouseX, p5.mouseY);
+    } else {
+      var selectedNode;
+      graph.nodes.forEach(function (node) {
+        var _node$clickHandler;
+
+        selectedNode = (_node$clickHandler = node.clickHandler()) !== null && _node$clickHandler !== void 0 ? _node$clickHandler : selectedNode;
+      });
+
+      if (selectedNode && prevNode && selectedNode != prevNode) {
+        graph.createEdge(prevNode.uid, selectedNode.uid);
+      }
+
+      prevNode = selectedNode;
+    }
   };
 
   p5.keyPressed = function () {
-    if (graph.selectNode) return true;
+    if (prevNode) {
+      if (p5.keyIsDown(p5.DELETE)) {
+        graph.edges.delete(prevNode.uid);
+        graph.nodes.delete(prevNode.uid);
+      } else if (p5.keyIsDown(69)) {
+        graph.edges.delete(prevNode.uid);
+      } else if (p5.keyCode.valueOf() >= 48 && p5.keyCode.valueOf() <= 57) {
+        prevNode.val = p5.keyCode.valueOf() - 48;
+      }
+    }
   };
 };
 
@@ -30876,7 +30907,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54518" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50840" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
