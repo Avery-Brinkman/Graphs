@@ -2,6 +2,13 @@ import P5 from "p5";
 import Edge from "./Edge";
 import GraphNode from "./GraphNode";
 
+/**
+ * Generates a unique Id for nodes.
+ *
+ * @param {number} currentGuid The starting number to return. Default 0.
+ *
+ * @return {Generator<number>} The current guid, incremented by one. get value with next().value
+ */
 function* generateUid(currentGuid: number = 0): Generator<number> {
   while (true) {
     yield currentGuid++;
@@ -12,7 +19,13 @@ export default class Graph {
   getUid = generateUid();
 
   p5: P5;
+  /**
+   * Maps node's uid to the actual node.
+   */
   nodes: Map<number, GraphNode>;
+  /**
+   * Maps node's uid to a list of edges that originate at that node.
+   */
   edges: Map<number, Edge[]>;
   selectNode: GraphNode;
   prevSelNode: GraphNode;
@@ -87,6 +100,13 @@ export default class Graph {
     this.createNode(this.p5.mouseX, this.p5.mouseY, 0);
   }
 
+  /**
+   * Creates a node and adds it to the graph.
+   *
+   * @param {number} x The x position to place the node at.
+   * @param {number} y The y position to place the node at.
+   * @param {number} value The value of the new node.
+   */
   createNode(x: number, y: number, value: number) {
     let uid = this.getUid.next().value;
     this.nodes.set(
@@ -95,6 +115,12 @@ export default class Graph {
     );
   }
 
+  /**
+   * Creates an edge and adds it to the graph.
+   *
+   * @param {number} from The uid for the node the edge starts at.
+   * @param {number} to The uid for the node the edge points to.
+   */
   createEdge(from: number, to: number) {
     // Make sure there is a list to push to
     if (!this.edges.get(from)) this.edges.set(from, []);
