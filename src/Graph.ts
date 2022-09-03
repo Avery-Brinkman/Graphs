@@ -129,8 +129,72 @@ export default class Graph {
     this.edges
       .get(from)
       .push(new Edge(this.p5, this.nodes.get(from), this.nodes.get(to)));
+    // Update the heap
+    this.sortEdgesInsert(from);
 
     // Add neighbor to node
     this.nodes.get(from).neighbors.push(this.nodes.get(to));
+  }
+
+  /**
+   * Sorts the heap from the bottom up. Used after an insertion.
+   *
+   * @param {number} node The node to be sorted. Defaults to the last edge.
+   */
+  sortEdgesInsert(
+    node: number,
+    inserted: number = this.edges.get(node).length - 1
+  ) {
+    let parent: number = (inserted - 1) / 2;
+
+    if (this.edges.get(node)[parent]) {
+      if (
+        this.edges.get(node)[inserted].weight <
+        this.edges.get(node)[parent].weight
+      ) {
+        let temp = this.edges.get(node)[parent];
+        this.edges.get(node)[parent] = this.edges.get(node)[inserted];
+        this.edges.get(node)[inserted] = temp;
+
+        // Recursively heapify the parent node
+        this.sortEdgesInsert(node, parent);
+      }
+    }
+  }
+
+  /**
+   * Sorts the heap of edges for a given node from the top down. Used after deletion.
+   *
+   * @param {number} node The node whose edges should be sorted
+   * @param {number} parent The parent node for the subtree that should be sorted. Defaults to the root.
+   */
+  sortEdgesDelete(node: number, parent: number = 0) {
+    let smallest: number = parent;
+    let left: number = 2 * parent + 1;
+    let right: number = 2 * parent + 2;
+
+    // If left child is smaller than root
+    if (
+      left < this.edges.get(node).length &&
+      this.edges.get(node)[left].weight < this.edges.get(node)[smallest].weight
+    )
+      smallest = left;
+
+    // If right child is smaller than smallest so far
+    if (
+      right < this.edges.get(node).length &&
+      this.edges.get(node)[right].weight < this.edges.get(node)[smallest].weight
+    )
+      smallest = right;
+
+    // If smallest is not root
+    if (smallest != parent) {
+      let temp: Edge = this.edges.get(node)[parent];
+      this.edges.get(node)[parent] = this.edges.get(node)[smallest];
+      this.edges.get(node)[smallest] = temp;
+
+      // Recursively sort the affected sub-tree
+      this.sortEdgesDelete(node, smallest);
+    }
   }
 }
