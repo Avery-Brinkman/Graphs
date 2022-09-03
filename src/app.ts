@@ -1,27 +1,26 @@
 import P5 from "p5";
 import "./styles.scss";
 
-import Graph from "./Graph";
-import GraphNode from "./GraphNode";
+import GraphRenderer from "./rendering/GraphRenderer";
+import VertexRenderer from "./rendering/VertexRenderer";
 
 // Creating the sketch itself
 const sketch = (p5: P5) => {
-  let graph: Graph;
-
-  let prevNode: GraphNode;
+  let graph: GraphRenderer;
+  let prevVert: VertexRenderer;
 
   // The sketch setup method
   p5.setup = () => {
-    graph = new Graph(p5);
+    graph = new GraphRenderer(p5);
 
     // Creating and positioning the canvas
     const canvas = p5.createCanvas(p5.windowWidth, p5.windowHeight);
     canvas.parent("app");
 
-    graph.createNode(200, 200, 1);
-    graph.createNode(100, 100, 2);
-    graph.createNode(300, 100, 3);
-    graph.createEdge(0, 1);
+    graph.makeVertex(200, 200, 1);
+    graph.makeVertex(100, 100, 2);
+    graph.makeVertex(300, 100, 3);
+    graph.makeEdge(0, 1);
   };
 
   // The sketch draw method
@@ -35,32 +34,32 @@ const sketch = (p5: P5) => {
     // graph.clickHandler();
 
     if (p5.keyIsDown(p5.SHIFT)) {
-      graph.createNode(p5.mouseX, p5.mouseY, 0);
+      graph.makeVertex(p5.mouseX, p5.mouseY, 0);
     } else if (p5.keyIsDown(p5.CONTROL)) {
-      if (prevNode) prevNode.pos.set(p5.mouseX, p5.mouseY);
+      if (prevVert) prevVert.pos.set(p5.mouseX, p5.mouseY);
     } else {
-      let selectedNode: GraphNode;
+      let selectedVert: VertexRenderer;
 
-      graph.nodes.forEach((node) => {
-        selectedNode = node.clickHandler() ?? selectedNode;
+      graph.r_vertices.forEach((vert) => {
+        selectedVert = vert.clickHandler() ?? selectedVert;
       });
 
-      if (selectedNode && prevNode && selectedNode != prevNode) {
-        graph.createEdge(prevNode.uid, selectedNode.uid);
+      if (prevVert && selectedVert && selectedVert != prevVert) {
+        graph.makeEdge(prevVert.uid, selectedVert.uid);
       }
-      prevNode = selectedNode;
+      prevVert = selectedVert;
     }
   };
 
   p5.keyPressed = () => {
-    if (prevNode) {
+    if (prevVert) {
       if (p5.keyIsDown(p5.DELETE)) {
-        graph.edges.delete(prevNode.uid);
-        graph.nodes.delete(prevNode.uid);
+        graph.removeVertex(prevVert.uid);
       } else if (p5.keyIsDown(69)) {
-        graph.edges.delete(prevNode.uid);
+        graph.removeEdgeFrom(prevVert.uid);
+        graph.removeEdgeTo(prevVert.uid);
       } else if (p5.keyCode.valueOf() >= 48 && p5.keyCode.valueOf() <= 57) {
-        prevNode.val = p5.keyCode.valueOf() - 48;
+        prevVert.val = p5.keyCode.valueOf() - 48;
       }
     }
   };

@@ -30466,11 +30466,11 @@ module.hot.accept(reloadCSS);
 },{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/Edge.ts":[function(require,module,exports) {
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -30478,84 +30478,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Edge = /*#__PURE__*/function () {
-  function Edge(p5, from, to) {
-    var weight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+var Edge = /*#__PURE__*/_createClass(function Edge(from, to) {
+  var weight = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Math.random() * 10;
 
-    _classCallCheck(this, Edge);
+  _classCallCheck(this, Edge);
 
-    _defineProperty(this, "p5", void 0);
+  _defineProperty(this, "from", void 0);
 
-    _defineProperty(this, "from", void 0);
+  _defineProperty(this, "to", void 0);
 
-    _defineProperty(this, "to", void 0);
+  _defineProperty(this, "weight", void 0);
 
-    _defineProperty(this, "weight", void 0);
-
-    _defineProperty(this, "newWeight", void 0);
-
-    _defineProperty(this, "selected", void 0);
-
-    _defineProperty(this, "hovering", void 0);
-
-    this.p5 = p5;
-    this.from = from;
-    this.to = to;
-    this.weight = weight;
-    this.newWeight = "";
-    this.selected = false;
-    this.hovering = false;
-  }
-
-  _createClass(Edge, [{
-    key: "draw",
-    value: function draw() {
-      var p5 = this.p5;
-      p5.stroke(0);
-
-      if (this.selected) {
-        p5.strokeWeight(6);
-      } else {
-        p5.strokeWeight(this.hovering ? 4 : 3);
-      }
-
-      p5.line(this.from.pos.x, this.from.pos.y, this.to.pos.x, this.to.pos.y);
-      p5.push();
-      var angle = p5.atan2(this.from.pos.y - this.to.pos.y, this.from.pos.x - this.to.pos.x); //gets the angle of the line
-
-      p5.translate(this.to.pos.x, this.to.pos.y); //translates to the destination vertex
-
-      p5.rotate(angle - p5.HALF_PI); //rotates the arrow point
-
-      p5.line(0, this.to.size / 2, -this.to.size * 0.2, this.to.size * 1.1);
-      p5.line(0, this.to.size / 2, this.to.size * 0.2, this.to.size * 1.1);
-      p5.pop();
-    }
-  }, {
-    key: "clickHandler",
-    value: function clickHandler() {
-      var p5 = this.p5;
-      var slope = (this.to.pos.y - this.from.pos.y) / (this.to.pos.x - this.from.pos.y);
-      var expectedY = slope * (p5.mouseX - this.from.pos.x) + this.from.pos.y;
-
-      if (Math.abs(expectedY - p5.mouseY) <= 5) {
-        return this;
-      }
-    }
-  }]);
-
-  return Edge;
-}();
+  this.from = from;
+  this.to = to;
+  this.weight = weight;
+});
 
 exports.default = Edge;
-},{}],"src/GraphNode.ts":[function(require,module,exports) {
+},{}],"src/Vertex.ts":[function(require,module,exports) {
 "use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -30563,69 +30510,36 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var GraphNode = /*#__PURE__*/function () {
-  function GraphNode(p5, position, value, uid) {
-    _classCallCheck(this, GraphNode);
+var Vertex = /*#__PURE__*/_createClass(
+/**
+ * E = (A, B)
+ *
+ * A.outEdges(B) = E
+ */
 
-    _defineProperty(this, "p5", void 0);
+/**
+ * E = (A, B)
+ *
+ * B.inEdges(A) = E
+ */
+function Vertex(value, uid) {
+  _classCallCheck(this, Vertex);
 
-    _defineProperty(this, "pos", void 0);
+  _defineProperty(this, "val", void 0);
 
-    _defineProperty(this, "size", void 0);
+  _defineProperty(this, "uid", void 0);
 
-    _defineProperty(this, "val", void 0);
+  _defineProperty(this, "outEdges", void 0);
 
-    _defineProperty(this, "uid", void 0);
+  _defineProperty(this, "inEdges", void 0);
 
-    _defineProperty(this, "selected", void 0);
+  this.val = value;
+  this.uid = uid;
+  this.outEdges = new Map();
+  this.inEdges = new Map();
+});
 
-    _defineProperty(this, "neighbors", void 0);
-
-    this.p5 = p5;
-    this.pos = position;
-    this.val = value;
-    this.uid = uid;
-    this.size = 50;
-    this.selected = false;
-    this.neighbors = [];
-  }
-
-  _createClass(GraphNode, [{
-    key: "draw",
-    value: function draw() {
-      var p5 = this.p5; // just for convenience
-
-      p5.push();
-      p5.translate(this.pos);
-      p5.stroke(0);
-      p5.strokeWeight(3);
-      p5.fill(this.selected ? "cyan" : "white");
-      p5.ellipse(0, 0, this.size);
-      p5.textAlign("center", "center");
-      p5.textSize(this.size / 2);
-      p5.strokeWeight(1);
-      p5.fill(0);
-      p5.text(this.val, 0, 0);
-      p5.pop();
-    }
-  }, {
-    key: "clickHandler",
-    value: function clickHandler() {
-      var p5 = this.p5;
-
-      if (p5.dist(p5.mouseX, p5.mouseY, this.pos.x, this.pos.y) < this.size / 2) {
-        this.selected = true;
-        return this;
-      } else {
-        this.selected = false;
-      }
-    }
-  }]);
-
-  return GraphNode;
-}();
-
-exports.default = GraphNode;
+exports.default = Vertex;
 },{}],"src/Graph.ts":[function(require,module,exports) {
 "use strict";
 
@@ -30653,13 +30567,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var p5_1 = __importDefault(require("p5"));
-
 var Edge_1 = __importDefault(require("./Edge"));
 
-var GraphNode_1 = __importDefault(require("./GraphNode"));
+var Vertex_1 = __importDefault(require("./Vertex"));
 /**
- * Generates a unique Id for nodes.
+ * Generates a unique Id for vertices.
  *
  * @param {number} currentGuid The starting number to return. Default 0.
  *
@@ -30699,114 +30611,604 @@ function generateUid() {
 
 var Graph = /*#__PURE__*/function () {
   /**
-   * Maps node's uid to the actual node.
+   * Maps vertex's uid to the actual vertex.
    */
 
   /**
-   * Maps node's uid to a list of edges that originate at that node.
+   * List of edges, stored as min heap.
    */
-  function Graph(p5) {
+  function Graph() {
     _classCallCheck(this, Graph);
 
     _defineProperty(this, "getUid", generateUid());
 
-    _defineProperty(this, "p5", void 0);
-
-    _defineProperty(this, "nodes", void 0);
+    _defineProperty(this, "vertices", void 0);
 
     _defineProperty(this, "edges", void 0);
 
-    _defineProperty(this, "selectNode", void 0);
-
-    _defineProperty(this, "prevSelNode", void 0);
-
-    _defineProperty(this, "selectEdge", void 0);
-
-    this.p5 = p5;
-    this.nodes = new Map();
-    this.edges = new Map();
+    this.vertices = new Map();
+    this.edges = [];
   }
+  /**
+   * Constructs a Vertex and adds it to the graph.
+   *
+   * @param {number} value The value of the new vertex.
+   */
+
 
   _createClass(Graph, [{
+    key: "createVertex",
+    value: function createVertex(value) {
+      var uid = this.getUid.next().value;
+      var newVert = new Vertex_1.default(value, uid);
+      this.vertices.set(uid, newVert);
+    }
+    /**
+     * Takes an already constructed vertex and adds it to the graph.
+     *
+     * @param {Vertex} vertex The vertex to add to the graph.
+     */
+
+  }, {
+    key: "insertVertex",
+    value: function insertVertex(vertex) {
+      this.vertices.set(vertex.uid, vertex);
+    }
+    /**
+     * Deletes a vertex and the edges that came from it from the graph.
+     *
+     * @param {number} vertex The uid of the vertex to be deleted.
+     */
+
+  }, {
+    key: "deleteVertex",
+    value: function deleteVertex(vertex) {
+      // Delete vertex
+      this.vertices.delete(vertex); // Update edges
+
+      this.deleteEdgeFrom(vertex);
+      this.deleteEdgeTo(vertex);
+    }
+    /**
+     * Creates an edge and adds it to the graph.
+     *
+     * @param {number} from The uid for the vertex the edge starts at.
+     * @param {number} to The uid for the vertex the edge points to.
+     */
+
+  }, {
+    key: "createEdge",
+    value: function createEdge(from, to) {
+      // Make the new edge
+      var edge = new Edge_1.default(this.vertices.get(from), this.vertices.get(to)); // Add edge to vertices
+
+      this.vertices.get(from).outEdges.set(to, edge);
+      this.vertices.get(to).inEdges.set(from, edge); // Add edge to graph
+
+      this.edges.push(edge); // Update the min heap
+
+      this.sortEdgesInsert();
+    }
+    /**
+     * Takes an already constructed edge and adds it to the graph.
+     *
+     * @param {Edge} edge The edge to add to the graph.
+     */
+
+  }, {
+    key: "insertEdge",
+    value: function insertEdge(edge) {
+      // Add edge to vertices
+      this.vertices.get(edge.from.uid).outEdges.set(edge.to.uid, edge);
+      this.vertices.get(edge.to.uid).inEdges.set(edge.from.uid, edge); // Add edge to graph
+
+      this.edges.push(edge); // Update the min heap
+
+      this.sortEdgesInsert();
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "deleteEdgeFrom",
+    value: function deleteEdgeFrom(from) {
+      var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var index = 0;
+      var edge; // Go through the edges
+
+      while (index < this.edges.length) {
+        edge = this.edges[index]; // Check if the edge should be deleted. If 'to' is not specified, all of 'froms' outgoing edges are deleted
+
+        if (edge.from.uid == from && (to == null || edge.to.uid == to)) {
+          // Remove edge from vertices
+          edge.from.outEdges.delete(edge.to.uid);
+          edge.to.inEdges.delete(edge.from.uid); // Remove edge from graph
+
+          this.edges.splice(index, 1);
+        } else {
+          // Removing shifts everything down by one, so only update if nothing was removed
+          index++;
+        }
+      } // Update the min heap
+
+
+      this.sortEdgesDelete();
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "deleteEdgeTo",
+    value: function deleteEdgeTo(to) {
+      var index = 0;
+      var edge; // Go through the edges
+
+      while (index < this.edges.length) {
+        edge = this.edges[index]; // Check if the edge should be deleted.
+
+        if (edge.to.uid == to) {
+          // Remove edge from vertices
+          edge.from.outEdges.delete(edge.to.uid);
+          edge.to.inEdges.delete(edge.from.uid); // Remove edge from graph
+
+          this.edges.splice(index, 1);
+        } else {
+          // Removing shifts everything down by one, so only update if nothing was removed
+          index++;
+        }
+      } // Update the min heap
+
+
+      this.sortEdgesDelete();
+    }
+    /**
+     * Sorts the min heap from the bottom up. Used after an insertion.
+     *
+     * @param {number} inserted The inserted edge to be sorted. Defaults to the last edge.
+     */
+
+  }, {
+    key: "sortEdgesInsert",
+    value: function sortEdgesInsert() {
+      var inserted = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.edges.length - 1;
+      var parent = Math.floor((inserted - 1) / 2); // Make sure parent exists
+
+      if (this.edges[parent]) {
+        if (this.edges[inserted].weight < this.edges[parent].weight) {
+          // Swap edges
+          var temp = this.edges[parent];
+          this.edges[parent] = this.edges[inserted];
+          this.edges[inserted] = temp; // Recursively sort the min heap
+
+          this.sortEdgesInsert(parent);
+        }
+      }
+    }
+    /**
+     * Sorts the min heap of edges from the top down. Used after deletion.
+     *
+     * @param {number} parent The parent vertex for the subtree that should be sorted. Defaults to the root.
+     */
+
+  }, {
+    key: "sortEdgesDelete",
+    value: function sortEdgesDelete() {
+      var parent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      // Get left and right
+      var smallest = parent;
+      var left = 2 * parent + 1;
+      var right = 2 * parent + 2; // If left child is smaller than root
+
+      if (left < this.edges.length && this.edges[left].weight < this.edges[smallest].weight) smallest = left; // If right child is smaller than left and root
+
+      if (right < this.edges.length && this.edges[right].weight < this.edges[smallest].weight) smallest = right; // If smallest is not root
+
+      if (smallest != parent) {
+        // Swap edges
+        var temp = this.edges[parent];
+        this.edges[parent] = this.edges[smallest];
+        this.edges[smallest] = temp; // Recursively sort the affected sub-tree
+
+        this.sortEdgesDelete(smallest);
+      }
+    }
+  }]);
+
+  return Graph;
+}();
+
+exports.default = Graph;
+},{"./Edge":"src/Edge.ts","./Vertex":"src/Vertex.ts"}],"src/rendering/EdgeRenderer.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Edge_1 = __importDefault(require("../Edge"));
+
+var EdgeRenderer = /*#__PURE__*/function (_Edge_1$default) {
+  _inherits(EdgeRenderer, _Edge_1$default);
+
+  var _super = _createSuper(EdgeRenderer);
+
+  function EdgeRenderer(p5, startVert, endVert) {
+    var _this;
+
+    _classCallCheck(this, EdgeRenderer);
+
+    _this = _super.call(this, startVert, endVert);
+
+    _defineProperty(_assertThisInitialized(_this), "p5", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "startVert", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "endVert", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "selected", void 0);
+
+    _this.p5 = p5;
+    _this.startVert = startVert;
+    _this.endVert = endVert;
+    _this.selected = false;
+    return _this;
+  }
+
+  _createClass(EdgeRenderer, [{
     key: "draw",
     value: function draw() {
-      this.edges.forEach(function (edgeList) {
-        edgeList.forEach(function (edge) {
-          edge.draw();
-        });
-      });
-      this.nodes.forEach(function (node) {
-        node.draw();
-      });
+      var p5 = this.p5;
+      var from = this.startVert.pos;
+      var to = this.endVert.pos;
+      p5.stroke(0);
+      p5.strokeWeight(this.selected ? 6 : 3);
+      p5.line(from.x, from.y, to.x, to.y);
+      p5.push();
+      var angle = p5.atan2(from.y - to.y, from.x - to.x);
+      p5.translate(to.x, to.y);
+      p5.rotate(angle - p5.HALF_PI);
+      p5.line(0, this.endVert.size / 2, -this.endVert.size * 0.2, this.endVert.size * 1.1);
+      p5.line(0, this.endVert.size / 2, this.endVert.size * 0.2, this.endVert.size * 1.1);
+      p5.pop();
     }
   }, {
     key: "clickHandler",
     value: function clickHandler() {
-      var selectedNode; // Try and select a node
+      var p5 = this.p5;
+      var from = this.startVert.pos;
+      var to = this.endVert.pos; // Get slope of edge line
 
-      this.nodes.forEach(function (node) {
-        var _node$clickHandler;
+      var slope = (to.y - from.y) / (to.x - from.y); // Find what y should be if mouse was directly on the line
 
-        selectedNode = (_node$clickHandler = node.clickHandler()) !== null && _node$clickHandler !== void 0 ? _node$clickHandler : selectedNode;
-      }); // Found a node
+      var expectedY = slope * (p5.mouseX - from.x) + from.y; // Treat as clicked if mouse is within some distance
 
-      if (selectedNode) {
-        // A node is already selected
-        if (this.selectNode) {
-          // Create edge between selected and prev selected
-          this.createEdge(this.selectNode.uid, selectedNode.uid);
-          this.selectNode.selected = false;
-        } // Update selected
+      if (Math.abs(expectedY - p5.mouseY) <= 5) {
+        return this;
+      }
+    }
+  }]);
 
+  return EdgeRenderer;
+}(Edge_1.default);
 
-        selectedNode.selected = true;
-        this.selectNode = selectedNode;
-        if (this.selectEdge) this.selectEdge.selected = false;
-        this.selectEdge = null;
-        return;
-      } // No node found
-      else {
-        if (this.selectNode) this.selectNode.selected = false;
-        this.selectNode = null;
+exports.default = EdgeRenderer;
+},{"../Edge":"src/Edge.ts"}],"src/rendering/VertexRenderer.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Vertex_1 = __importDefault(require("../Vertex"));
+
+var VertexRenderer = /*#__PURE__*/function (_Vertex_1$default) {
+  _inherits(VertexRenderer, _Vertex_1$default);
+
+  var _super = _createSuper(VertexRenderer);
+
+  function VertexRenderer(p5, value, uid, position) {
+    var _this;
+
+    _classCallCheck(this, VertexRenderer);
+
+    _this = _super.call(this, value, uid);
+
+    _defineProperty(_assertThisInitialized(_this), "p5", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "pos", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "size", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "selected", void 0);
+
+    _this.p5 = p5;
+    _this.pos = position;
+    _this.size = 50;
+    _this.selected = false;
+    return _this;
+  }
+
+  _createClass(VertexRenderer, [{
+    key: "draw",
+    value: function draw() {
+      var p5 = this.p5;
+      p5.push();
+      p5.translate(this.pos);
+      p5.stroke(0);
+      p5.strokeWeight(3);
+      p5.fill(this.selected ? "cyan" : "white");
+      p5.ellipse(0, 0, this.size);
+      p5.textAlign("center", "center");
+      p5.textSize(this.size / 2);
+      p5.strokeWeight(1);
+      p5.fill(0);
+      p5.text(this.val, 0, 0);
+      p5.pop();
+    }
+  }, {
+    key: "clickHandler",
+    value: function clickHandler() {
+      var p5 = this.p5;
+
+      if (p5.dist(p5.mouseX, p5.mouseY, this.pos.x, this.pos.y) < this.size / 2) {
+        this.selected = true;
+        return this;
+      } else {
+        this.selected = false;
+      }
+    }
+  }]);
+
+  return VertexRenderer;
+}(Vertex_1.default);
+
+exports.default = VertexRenderer;
+},{"../Vertex":"src/Vertex.ts"}],"src/rendering/GraphRenderer.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var p5_1 = __importDefault(require("p5"));
+
+var Graph_1 = __importDefault(require("../Graph"));
+
+var EdgeRenderer_1 = __importDefault(require("./EdgeRenderer"));
+
+var VertexRenderer_1 = __importDefault(require("./VertexRenderer"));
+
+var GraphRenderer = /*#__PURE__*/function (_Graph_1$default) {
+  _inherits(GraphRenderer, _Graph_1$default);
+
+  var _super = _createSuper(GraphRenderer);
+
+  function GraphRenderer(p5) {
+    var _this;
+
+    _classCallCheck(this, GraphRenderer);
+
+    _this = _super.call(this);
+
+    _defineProperty(_assertThisInitialized(_this), "p5", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "r_vertices", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "r_edges", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "selectedVertex", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "selectedEdge", void 0);
+
+    _this.p5 = p5;
+    _this.r_vertices = new Map();
+    _this.r_edges = [];
+    _this.selectedVertex = null;
+    _this.selectedEdge = null;
+    return _this;
+  }
+
+  _createClass(GraphRenderer, [{
+    key: "draw",
+    value: function draw() {
+      var _iterator = _createForOfIteratorHelper(this.r_edges),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var edge = _step.value;
+          edge.draw();
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
 
-      var selectedEdge; // Try and select an edge
+      this.r_vertices.forEach(function (vertex) {
+        vertex.draw();
+      });
+    } // clickHandler() {
+    //   let selectedNode: GraphNode;
+    //   // Try and select a node
+    //   this.nodes.forEach((node) => {
+    //     selectedNode = node.clickHandler() ?? selectedNode;
+    //   });
+    //   // Found a node
+    //   if (selectedNode) {
+    //     // A node is already selected
+    //     if (this.selectNode) {
+    //       // Create edge between selected and prev selected
+    //       this.createEdge(this.selectNode.uid, selectedNode.uid);
+    //       this.selectNode.selected = false;
+    //     }
+    //     // Update selected
+    //     selectedNode.selected = true;
+    //     this.selectNode = selectedNode;
+    //     if (this.selectEdge) this.selectEdge.selected = false;
+    //     this.selectEdge = null;
+    //     return;
+    //   }
+    //   // No node found
+    //   else {
+    //     if (this.selectNode) this.selectNode.selected = false;
+    //     this.selectNode = null;
+    //   }
+    //   let selectedEdge: Edge;
+    //   // Try and select an edge
+    //   this.edges.forEach((edgeList) => {
+    //     edgeList.forEach((edge) => {
+    //       selectedEdge = edge.clickHandler() ?? selectedEdge;
+    //     });
+    //   });
+    //   // Found an edge
+    //   if (selectedEdge) {
+    //     selectedEdge.selected = true;
+    //     if (this.selectEdge) this.selectEdge.selected = false;
+    //     this.selectEdge = selectedEdge;
+    //     return;
+    //   }
+    //   // No edge found
+    //   else {
+    //     if (this.selectEdge) this.selectEdge.selected = false;
+    //     this.selectEdge = null;
+    //   }
+    //   //Nothing found, create new node
+    //   this.createNode(this.p5.mouseX, this.p5.mouseY, 0);
+    // }
 
-      this.edges.forEach(function (edgeList) {
-        edgeList.forEach(function (edge) {
-          var _edge$clickHandler;
-
-          selectedEdge = (_edge$clickHandler = edge.clickHandler()) !== null && _edge$clickHandler !== void 0 ? _edge$clickHandler : selectedEdge;
-        });
-      }); // Found an edge
-
-      if (selectedEdge) {
-        selectedEdge.selected = true;
-        if (this.selectEdge) this.selectEdge.selected = false;
-        this.selectEdge = selectedEdge;
-        return;
-      } // No edge found
-      else {
-        if (this.selectEdge) this.selectEdge.selected = false;
-        this.selectEdge = null;
-      } //Nothing found, create new node
-
-
-      this.createNode(this.p5.mouseX, this.p5.mouseY, 0);
-    }
     /**
-     * Creates a node and adds it to the graph.
+     * Creates a vertex and adds it to the graph.
      *
-     * @param {number} x The x position to place the node at.
-     * @param {number} y The y position to place the node at.
-     * @param {number} value The value of the new node.
+     * @param {number} x The x position to place the vertex at.
+     * @param {number} y The y position to place the vertex at.
+     * @param {number} value The value of the new vertex.
      */
 
   }, {
-    key: "createNode",
-    value: function createNode(x, y, value) {
-      var uid = this.getUid.next().value;
-      this.nodes.set(uid, new GraphNode_1.default(this.p5, new p5_1.default.Vector(x, y), value, uid));
+    key: "makeVertex",
+    value: function makeVertex(x, y, value) {
+      // Generate uid
+      var uid = this.getUid.next().value; // Create the renderer
+
+      var vert = new VertexRenderer_1.default(this.p5, value, uid, new p5_1.default.Vector(x, y)); // Add it to graph renderer
+
+      this.r_vertices.set(uid, vert); // Add it to graph
+
+      this.insertVertex(vert);
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "removeVertex",
+    value: function removeVertex(vertex) {
+      // Remove from renderer
+      this.r_vertices.delete(vertex); // Remove from graph
+
+      this.deleteVertex(vertex); // Remove edges that start from vertex
+
+      this.removeEdgeFrom(vertex);
+      this.removeEdgeTo(vertex);
     }
     /**
      * Creates an edge and adds it to the graph.
@@ -30816,73 +31218,72 @@ var Graph = /*#__PURE__*/function () {
      */
 
   }, {
-    key: "createEdge",
-    value: function createEdge(from, to) {
-      // Make sure there is a list to push to
-      if (!this.edges.get(from)) this.edges.set(from, []); // Add to edges
+    key: "makeEdge",
+    value: function makeEdge(from, to) {
+      var edge = new EdgeRenderer_1.default(this.p5, this.r_vertices.get(from), this.r_vertices.get(to)); // Add edge to renderer
 
-      this.edges.get(from).push(new Edge_1.default(this.p5, this.nodes.get(from), this.nodes.get(to))); // Update the heap
+      this.r_edges.push(edge); // Add edge to graph
 
-      this.sortEdgesInsert(from); // Add neighbor to node
-
-      this.nodes.get(from).neighbors.push(this.nodes.get(to));
+      this.insertEdge(edge);
     }
     /**
-     * Sorts the heap from the bottom up. Used after an insertion.
      *
-     * @param {number} node The node to be sorted. Defaults to the last edge.
      */
 
   }, {
-    key: "sortEdgesInsert",
-    value: function sortEdgesInsert(node) {
-      var inserted = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.edges.get(node).length - 1;
-      var parent = (inserted - 1) / 2;
+    key: "removeEdgeFrom",
+    value: function removeEdgeFrom(from) {
+      var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var index = 0;
+      var edge; // Go through the r_edges
 
-      if (this.edges.get(node)[parent]) {
-        if (this.edges.get(node)[inserted].weight < this.edges.get(node)[parent].weight) {
-          var temp = this.edges.get(node)[parent];
-          this.edges.get(node)[parent] = this.edges.get(node)[inserted];
-          this.edges.get(node)[inserted] = temp; // Recursively heapify the parent node
+      while (index < this.r_edges.length) {
+        edge = this.r_edges[index]; // Check if the r_edge should be removed. If 'to' is not specified, all of 'from' outgoing edges are removed.
 
-          this.sortEdgesInsert(node, parent);
+        if (edge.from.uid == from && (to == null || edge.to.uid == to)) {
+          // Remove r_edge from GraphRenderer
+          this.r_edges.splice(index, 1);
+        } else {
+          // Removing shifts everything down by one, so only update if nothing was removed
+          index++;
         }
-      }
+      } // Delete from graph
+
+
+      this.deleteEdgeFrom(from, to);
     }
     /**
-     * Sorts the heap of edges for a given node from the top down. Used after deletion.
      *
-     * @param {number} node The node whose edges should be sorted
-     * @param {number} parent The parent node for the subtree that should be sorted. Defaults to the root.
      */
 
   }, {
-    key: "sortEdgesDelete",
-    value: function sortEdgesDelete(node) {
-      var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var smallest = parent;
-      var left = 2 * parent + 1;
-      var right = 2 * parent + 2; // If left child is smaller than root
+    key: "removeEdgeTo",
+    value: function removeEdgeTo(to) {
+      var index = 0;
+      var edge; // Go through the r_edges
 
-      if (left < this.edges.get(node).length && this.edges.get(node)[left].weight < this.edges.get(node)[smallest].weight) smallest = left; // If right child is smaller than smallest so far
+      while (index < this.r_edges.length) {
+        edge = this.r_edges[index]; // Check if the r_edge should be removed. If 'to' is not specified, all of 'from' outgoing edges are removed.
 
-      if (right < this.edges.get(node).length && this.edges.get(node)[right].weight < this.edges.get(node)[smallest].weight) smallest = right; // If smallest is not root
+        if (edge.to.uid == to) {
+          // Remove r_edge from GraphRenderer
+          this.r_edges.splice(index, 1);
+        } else {
+          // Removing shifts everything down by one, so only update if nothing was removed
+          index++;
+        }
+      } // Delete from graph
 
-      if (smallest != parent) {
-        var temp = this.edges.get(node)[parent];
-        this.edges.get(node)[parent] = this.edges.get(node)[smallest];
-        this.edges.get(node)[smallest] = temp; // Recursively sort the affected sub-tree
 
-        this.sortEdgesDelete(node, smallest);
-      }
+      this.deleteEdgeTo(to);
     }
   }]);
 
-  return Graph;
-}();
+  return GraphRenderer;
+}(Graph_1.default);
 
-exports.default = Graph;
-},{"p5":"node_modules/p5/lib/p5.min.js","./Edge":"src/Edge.ts","./GraphNode":"src/GraphNode.ts"}],"src/app.ts":[function(require,module,exports) {
+exports.default = GraphRenderer;
+},{"p5":"node_modules/p5/lib/p5.min.js","../Graph":"src/Graph.ts","./EdgeRenderer":"src/rendering/EdgeRenderer.ts","./VertexRenderer":"src/rendering/VertexRenderer.ts"}],"src/app.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -30899,22 +31300,22 @@ var p5_1 = __importDefault(require("p5"));
 
 require("./styles.scss");
 
-var Graph_1 = __importDefault(require("./Graph")); // Creating the sketch itself
+var GraphRenderer_1 = __importDefault(require("./rendering/GraphRenderer")); // Creating the sketch itself
 
 
 var sketch = function sketch(p5) {
   var graph;
-  var prevNode; // The sketch setup method
+  var prevVert; // The sketch setup method
 
   p5.setup = function () {
-    graph = new Graph_1.default(p5); // Creating and positioning the canvas
+    graph = new GraphRenderer_1.default(p5); // Creating and positioning the canvas
 
     var canvas = p5.createCanvas(p5.windowWidth, p5.windowHeight);
     canvas.parent("app");
-    graph.createNode(200, 200, 1);
-    graph.createNode(100, 100, 2);
-    graph.createNode(300, 100, 3);
-    graph.createEdge(0, 1);
+    graph.makeVertex(200, 200, 1);
+    graph.makeVertex(100, 100, 2);
+    graph.makeVertex(300, 100, 3);
+    graph.makeEdge(0, 1);
   }; // The sketch draw method
 
 
@@ -30926,41 +31327,41 @@ var sketch = function sketch(p5) {
   p5.mouseClicked = function () {
     // graph.clickHandler();
     if (p5.keyIsDown(p5.SHIFT)) {
-      graph.createNode(p5.mouseX, p5.mouseY, 0);
+      graph.makeVertex(p5.mouseX, p5.mouseY, 0);
     } else if (p5.keyIsDown(p5.CONTROL)) {
-      if (prevNode) prevNode.pos.set(p5.mouseX, p5.mouseY);
+      if (prevVert) prevVert.pos.set(p5.mouseX, p5.mouseY);
     } else {
-      var selectedNode;
-      graph.nodes.forEach(function (node) {
-        var _node$clickHandler;
+      var selectedVert;
+      graph.r_vertices.forEach(function (vert) {
+        var _vert$clickHandler;
 
-        selectedNode = (_node$clickHandler = node.clickHandler()) !== null && _node$clickHandler !== void 0 ? _node$clickHandler : selectedNode;
+        selectedVert = (_vert$clickHandler = vert.clickHandler()) !== null && _vert$clickHandler !== void 0 ? _vert$clickHandler : selectedVert;
       });
 
-      if (selectedNode && prevNode && selectedNode != prevNode) {
-        graph.createEdge(prevNode.uid, selectedNode.uid);
+      if (prevVert && selectedVert && selectedVert != prevVert) {
+        graph.makeEdge(prevVert.uid, selectedVert.uid);
       }
 
-      prevNode = selectedNode;
+      prevVert = selectedVert;
     }
   };
 
   p5.keyPressed = function () {
-    if (prevNode) {
+    if (prevVert) {
       if (p5.keyIsDown(p5.DELETE)) {
-        graph.edges.delete(prevNode.uid);
-        graph.nodes.delete(prevNode.uid);
+        graph.removeVertex(prevVert.uid);
       } else if (p5.keyIsDown(69)) {
-        graph.edges.delete(prevNode.uid);
+        graph.removeEdgeFrom(prevVert.uid);
+        graph.removeEdgeTo(prevVert.uid);
       } else if (p5.keyCode.valueOf() >= 48 && p5.keyCode.valueOf() <= 57) {
-        prevNode.val = p5.keyCode.valueOf() - 48;
+        prevVert.val = p5.keyCode.valueOf() - 48;
       }
     }
   };
 };
 
 new p5_1.default(sketch);
-},{"p5":"node_modules/p5/lib/p5.min.js","./styles.scss":"src/styles.scss","./Graph":"src/Graph.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"p5":"node_modules/p5/lib/p5.min.js","./styles.scss":"src/styles.scss","./rendering/GraphRenderer":"src/rendering/GraphRenderer.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -30988,7 +31389,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50840" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52777" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -1,9 +1,8 @@
-import P5 from "p5";
 import Edge from "./Edge";
-import GraphNode from "./GraphNode";
+import Vertex from "./Vertex";
 
 /**
- * Generates a unique Id for nodes.
+ * Generates a unique Id for vertices.
  *
  * @param {number} currentGuid The starting number to return. Default 0.
  *
@@ -18,183 +17,199 @@ function* generateUid(currentGuid: number = 0): Generator<number> {
 export default class Graph {
   getUid = generateUid();
 
-  p5: P5;
   /**
-   * Maps node's uid to the actual node.
+   * Maps vertex's uid to the actual vertex.
    */
-  nodes: Map<number, GraphNode>;
+  vertices: Map<number, Vertex>;
   /**
-   * Maps node's uid to a list of edges that originate at that node.
+   * List of edges, stored as min heap.
    */
-  edges: Map<number, Edge[]>;
-  selectNode: GraphNode;
-  prevSelNode: GraphNode;
-  selectEdge: Edge;
+  edges: Edge[];
 
-  constructor(p5: P5) {
-    this.p5 = p5;
-    this.nodes = new Map<number, GraphNode>();
-    this.edges = new Map<number, Edge[]>();
-  }
-
-  draw() {
-    this.edges.forEach((edgeList) => {
-      edgeList.forEach((edge) => {
-        edge.draw();
-      });
-    });
-    this.nodes.forEach((node) => {
-      node.draw();
-    });
-  }
-
-  clickHandler() {
-    let selectedNode: GraphNode;
-    // Try and select a node
-    this.nodes.forEach((node) => {
-      selectedNode = node.clickHandler() ?? selectedNode;
-    });
-    // Found a node
-    if (selectedNode) {
-      // A node is already selected
-      if (this.selectNode) {
-        // Create edge between selected and prev selected
-        this.createEdge(this.selectNode.uid, selectedNode.uid);
-        this.selectNode.selected = false;
-      }
-      // Update selected
-      selectedNode.selected = true;
-      this.selectNode = selectedNode;
-
-      if (this.selectEdge) this.selectEdge.selected = false;
-      this.selectEdge = null;
-      return;
-    }
-    // No node found
-    else {
-      if (this.selectNode) this.selectNode.selected = false;
-      this.selectNode = null;
-    }
-
-    let selectedEdge: Edge;
-    // Try and select an edge
-    this.edges.forEach((edgeList) => {
-      edgeList.forEach((edge) => {
-        selectedEdge = edge.clickHandler() ?? selectedEdge;
-      });
-    });
-    // Found an edge
-    if (selectedEdge) {
-      selectedEdge.selected = true;
-      if (this.selectEdge) this.selectEdge.selected = false;
-      this.selectEdge = selectedEdge;
-      return;
-    }
-    // No edge found
-    else {
-      if (this.selectEdge) this.selectEdge.selected = false;
-      this.selectEdge = null;
-    }
-
-    //Nothing found, create new node
-    this.createNode(this.p5.mouseX, this.p5.mouseY, 0);
+  constructor() {
+    this.vertices = new Map<number, Vertex>();
+    this.edges = [];
   }
 
   /**
-   * Creates a node and adds it to the graph.
+   * Constructs a Vertex and adds it to the graph.
    *
-   * @param {number} x The x position to place the node at.
-   * @param {number} y The y position to place the node at.
-   * @param {number} value The value of the new node.
+   * @param {number} value The value of the new vertex.
    */
-  createNode(x: number, y: number, value: number) {
-    let uid = this.getUid.next().value;
-    this.nodes.set(
-      uid,
-      new GraphNode(this.p5, new P5.Vector(x, y), value, uid)
-    );
+  createVertex(value: number) {
+    let uid: number = this.getUid.next().value;
+    let newVert: Vertex = new Vertex(value, uid);
+    this.vertices.set(uid, newVert);
+  }
+
+  /**
+   * Takes an already constructed vertex and adds it to the graph.
+   *
+   * @param {Vertex} vertex The vertex to add to the graph.
+   */
+  insertVertex(vertex: Vertex) {
+    this.vertices.set(vertex.uid, vertex);
+  }
+
+  /**
+   * Deletes a vertex and the edges that came from it from the graph.
+   *
+   * @param {number} vertex The uid of the vertex to be deleted.
+   */
+  deleteVertex(vertex: number) {
+    // Delete vertex
+    this.vertices.delete(vertex);
+    // Update edges
+    this.deleteEdgeFrom(vertex);
+    this.deleteEdgeTo(vertex);
   }
 
   /**
    * Creates an edge and adds it to the graph.
    *
-   * @param {number} from The uid for the node the edge starts at.
-   * @param {number} to The uid for the node the edge points to.
+   * @param {number} from The uid for the vertex the edge starts at.
+   * @param {number} to The uid for the vertex the edge points to.
    */
   createEdge(from: number, to: number) {
-    // Make sure there is a list to push to
-    if (!this.edges.get(from)) this.edges.set(from, []);
+    // Make the new edge
+    let edge: Edge = new Edge(this.vertices.get(from), this.vertices.get(to));
 
-    // Add to edges
-    this.edges
-      .get(from)
-      .push(new Edge(this.p5, this.nodes.get(from), this.nodes.get(to)));
-    // Update the heap
-    this.sortEdgesInsert(from);
+    // Add edge to vertices
+    this.vertices.get(from).outEdges.set(to, edge);
+    this.vertices.get(to).inEdges.set(from, edge);
 
-    // Add neighbor to node
-    this.nodes.get(from).neighbors.push(this.nodes.get(to));
+    // Add edge to graph
+    this.edges.push(edge);
+    // Update the min heap
+    this.sortEdgesInsert();
   }
 
   /**
-   * Sorts the heap from the bottom up. Used after an insertion.
+   * Takes an already constructed edge and adds it to the graph.
    *
-   * @param {number} node The node to be sorted. Defaults to the last edge.
+   * @param {Edge} edge The edge to add to the graph.
    */
-  sortEdgesInsert(
-    node: number,
-    inserted: number = this.edges.get(node).length - 1
-  ) {
-    let parent: number = (inserted - 1) / 2;
+  insertEdge(edge: Edge) {
+    // Add edge to vertices
+    this.vertices.get(edge.from.uid).outEdges.set(edge.to.uid, edge);
+    this.vertices.get(edge.to.uid).inEdges.set(edge.from.uid, edge);
 
-    if (this.edges.get(node)[parent]) {
-      if (
-        this.edges.get(node)[inserted].weight <
-        this.edges.get(node)[parent].weight
-      ) {
-        let temp = this.edges.get(node)[parent];
-        this.edges.get(node)[parent] = this.edges.get(node)[inserted];
-        this.edges.get(node)[inserted] = temp;
+    // Add edge to graph
+    this.edges.push(edge);
+    // Update the min heap
+    this.sortEdgesInsert();
+  }
 
-        // Recursively heapify the parent node
-        this.sortEdgesInsert(node, parent);
+  /**
+   *
+   */
+  deleteEdgeFrom(from: number, to: number = null) {
+    let index: number = 0;
+    let edge: Edge;
+    // Go through the edges
+    while (index < this.edges.length) {
+      edge = this.edges[index];
+      // Check if the edge should be deleted. If 'to' is not specified, all of 'froms' outgoing edges are deleted
+      if (edge.from.uid == from && (to == null || edge.to.uid == to)) {
+        // Remove edge from vertices
+        edge.from.outEdges.delete(edge.to.uid);
+        edge.to.inEdges.delete(edge.from.uid);
+
+        // Remove edge from graph
+        this.edges.splice(index, 1);
+      } else {
+        // Removing shifts everything down by one, so only update if nothing was removed
+        index++;
+      }
+    }
+
+    // Update the min heap
+    this.sortEdgesDelete();
+  }
+
+  /**
+   *
+   */
+  deleteEdgeTo(to: number) {
+    let index: number = 0;
+    let edge: Edge;
+    // Go through the edges
+    while (index < this.edges.length) {
+      edge = this.edges[index];
+      // Check if the edge should be deleted.
+      if (edge.to.uid == to) {
+        // Remove edge from vertices
+        edge.from.outEdges.delete(edge.to.uid);
+        edge.to.inEdges.delete(edge.from.uid);
+
+        // Remove edge from graph
+        this.edges.splice(index, 1);
+      } else {
+        // Removing shifts everything down by one, so only update if nothing was removed
+        index++;
+      }
+    }
+
+    // Update the min heap
+    this.sortEdgesDelete();
+  }
+
+  /**
+   * Sorts the min heap from the bottom up. Used after an insertion.
+   *
+   * @param {number} inserted The inserted edge to be sorted. Defaults to the last edge.
+   */
+  sortEdgesInsert(inserted: number = this.edges.length - 1) {
+    let parent: number = Math.floor((inserted - 1) / 2);
+
+    // Make sure parent exists
+    if (this.edges[parent]) {
+      if (this.edges[inserted].weight < this.edges[parent].weight) {
+        // Swap edges
+        let temp: Edge = this.edges[parent];
+        this.edges[parent] = this.edges[inserted];
+        this.edges[inserted] = temp;
+
+        // Recursively sort the min heap
+        this.sortEdgesInsert(parent);
       }
     }
   }
 
   /**
-   * Sorts the heap of edges for a given node from the top down. Used after deletion.
+   * Sorts the min heap of edges from the top down. Used after deletion.
    *
-   * @param {number} node The node whose edges should be sorted
-   * @param {number} parent The parent node for the subtree that should be sorted. Defaults to the root.
+   * @param {number} parent The parent vertex for the subtree that should be sorted. Defaults to the root.
    */
-  sortEdgesDelete(node: number, parent: number = 0) {
+  sortEdgesDelete(parent: number = 0) {
+    // Get left and right
     let smallest: number = parent;
     let left: number = 2 * parent + 1;
     let right: number = 2 * parent + 2;
 
     // If left child is smaller than root
     if (
-      left < this.edges.get(node).length &&
-      this.edges.get(node)[left].weight < this.edges.get(node)[smallest].weight
+      left < this.edges.length &&
+      this.edges[left].weight < this.edges[smallest].weight
     )
       smallest = left;
 
-    // If right child is smaller than smallest so far
+    // If right child is smaller than left and root
     if (
-      right < this.edges.get(node).length &&
-      this.edges.get(node)[right].weight < this.edges.get(node)[smallest].weight
+      right < this.edges.length &&
+      this.edges[right].weight < this.edges[smallest].weight
     )
       smallest = right;
 
     // If smallest is not root
     if (smallest != parent) {
-      let temp: Edge = this.edges.get(node)[parent];
-      this.edges.get(node)[parent] = this.edges.get(node)[smallest];
-      this.edges.get(node)[smallest] = temp;
+      // Swap edges
+      let temp: Edge = this.edges[parent];
+      this.edges[parent] = this.edges[smallest];
+      this.edges[smallest] = temp;
 
       // Recursively sort the affected sub-tree
-      this.sortEdgesDelete(node, smallest);
+      this.sortEdgesDelete(smallest);
     }
   }
 }

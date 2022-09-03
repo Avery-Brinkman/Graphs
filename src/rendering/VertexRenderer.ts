@@ -1,27 +1,22 @@
 import P5 from "p5";
+import Vertex from "../Vertex";
 
-export default class GraphNode {
+export default class VertexRenderer extends Vertex {
   p5: P5;
   pos: P5.Vector;
   size: number;
-  val: number;
-  uid: number;
   selected: boolean;
-  neighbors: GraphNode[];
 
-  constructor(p5: P5, position: P5.Vector, value: number, uid: number) {
+  constructor(p5: P5, value: number, uid: number, position: P5.Vector) {
+    super(value, uid);
     this.p5 = p5;
     this.pos = position;
-    this.val = value;
-    this.uid = uid;
     this.size = 50;
     this.selected = false;
-    this.neighbors = [];
   }
 
   draw() {
-    const p5 = this.p5; // just for convenience
-
+    const p5 = this.p5;
     p5.push();
 
     p5.translate(this.pos);
@@ -41,7 +36,7 @@ export default class GraphNode {
     p5.pop();
   }
 
-  clickHandler(): GraphNode {
+  clickHandler() {
     const p5 = this.p5;
 
     if (p5.dist(p5.mouseX, p5.mouseY, this.pos.x, this.pos.y) < this.size / 2) {

@@ -10,4 +10,5 @@
     "moduleResolution": "node",
     "target": "ESNext"
   }
+  // "exclude": ["./tests/", "./dist/"]
 }
