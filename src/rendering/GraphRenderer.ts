@@ -81,7 +81,7 @@ export default class GraphRenderer extends Graph {
   // }
 
   /**
-   * Creates a vertex and adds it to the graph.
+   * Creates a vertex and renderer and adds it to the graph and graph renderer.
    *
    * @param {number} x The x position to place the vertex at.
    * @param {number} y The y position to place the vertex at.
@@ -104,7 +104,9 @@ export default class GraphRenderer extends Graph {
   }
 
   /**
+   * Removes a vertex and renderer from graph and graph renderer.
    *
+   * @param {number} vertex The uid of the vertex to be removed.
    */
   removeVertex(vertex: number) {
     // Remove from renderer
@@ -117,18 +119,19 @@ export default class GraphRenderer extends Graph {
   }
 
   /**
-   * Creates an edge and adds it to the graph.
+   * Creates an edge and renderer and adds it to the graph and graph renderer.
    *
    * @param {number} from The uid for the node the edge starts at.
    * @param {number} to The uid for the node the edge points to.
    */
   makeEdge(from: number, to: number) {
+    // Create the edge and renderer
     let edge: EdgeRenderer = new EdgeRenderer(
       this.p5,
       this.r_vertices.get(from),
       this.r_vertices.get(to)
     );
-    // Add edge to renderer
+    // Add edge renderer to graph renderer
     this.r_edges.push(edge);
 
     // Add edge to graph
@@ -136,7 +139,11 @@ export default class GraphRenderer extends Graph {
   }
 
   /**
+   * Removes all edges and renderers from graph and graph renderer that start from a given vertex.
+   * Specifying to will delete only the edge that points to that vertex.
    *
+   * @param {number} from The uid of the vertex that the edge(s) start at
+   * @param {number} to The uid of the vertex that the edge points to. Optional.
    */
   removeEdgeFrom(from: number, to: number = null) {
     let index: number = 0;
@@ -159,7 +166,9 @@ export default class GraphRenderer extends Graph {
   }
 
   /**
+   * Removes all edges and renderers from graph and graph renderer that point to a given vertex.
    *
+   * @param {number} to The uid of the vertex that the edges point to.
    */
   removeEdgeTo(to: number) {
     let index: number = 0;

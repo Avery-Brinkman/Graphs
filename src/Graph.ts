@@ -4,7 +4,7 @@ import Vertex from "./Vertex";
 /**
  * Generates a unique Id for vertices.
  *
- * @param {number} currentGuid The starting number to return. Default 0.
+ * @param {number} currentGuid The starting number. Default 0.
  *
  * @return {Generator<number>} The current guid, incremented by one. get value with next().value
  */
@@ -32,7 +32,7 @@ export default class Graph {
   }
 
   /**
-   * Constructs a Vertex and adds it to the graph.
+   * Constructs a vertex and adds it to the graph.
    *
    * @param {number} value The value of the new vertex.
    */
@@ -52,7 +52,7 @@ export default class Graph {
   }
 
   /**
-   * Deletes a vertex and the edges that came from it from the graph.
+   * Deletes a vertex and all edges that attach to it from the graph.
    *
    * @param {number} vertex The uid of the vertex to be deleted.
    */
@@ -101,7 +101,11 @@ export default class Graph {
   }
 
   /**
+   * Removes all edges from the graph that start from a given vertex.
+   * Specifying to will delete only the edge that points to that vertex.
    *
+   * @param {number} from The uid of the vertex that the edge(s) start at
+   * @param {number} to The uid of the vertex that the edge points to. Optional.
    */
   deleteEdgeFrom(from: number, to: number = null) {
     let index: number = 0;
@@ -128,7 +132,9 @@ export default class Graph {
   }
 
   /**
+   * Removes all edges from the graph that point to a given vertex.
    *
+   * @param {number} to The uid of the vertex that the edges point to.
    */
   deleteEdgeTo(to: number) {
     let index: number = 0;
